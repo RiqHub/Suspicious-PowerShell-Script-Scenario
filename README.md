@@ -37,6 +37,30 @@ DeviceProcessEvents
 ![image](https://github.com/user-attachments/assets/cd177c9a-85d7-436d-9be6-de0f56d700cc)
 
 ---
+### 2. Searched for scripts ran
+
+It was confirmed that scripts with concerning names (portscan.ps1, pwncrypt.ps1, and exfiltrateddata.ps1) were downloaded to the computer. To investigate further, we checked whether these downloads had been executed, and indeed, they had been.
+
+**Query used to locate:**
+
+```kql
+let TargetHostname = "riq-test"; // Replace with the name of your VM as it shows up in the logs
+let ScriptNames = dynamic(["eicar.ps1", "exfiltratedata.ps1", "portscan.ps1", "pwncrypt.ps1"]); 
+DeviceProcessEvents
+| where DeviceName == TargetHostname // Comment this line out for MORE results
+| where FileName == "powershell.exe"
+| where ProcessCommandLine contains "-File" and ProcessCommandLine has_any (ScriptNames)
+| order by TimeGenerated
+| project TimeGenerated, AccountName, DeviceName, FileName, ProcessCommandLine
+```
+
+![image](https://github.com/user-attachments/assets/32b78ee2-83bb-4934-8daa-5e5793c50e72)
+
+---
+
+
+
+
 
 
 
