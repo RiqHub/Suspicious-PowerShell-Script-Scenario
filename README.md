@@ -76,5 +76,46 @@ DeviceFileEvents
 
 ---
 
+### 4. Searched for Persistence
+
+After checking for any new Registry Keys or Scheduled Tasks, we searched the start up folder to see if their were any signs of persistence and we indeed found the `eicar.ps1` file that initially released the other scripts to run. 
+
+
+**Query used to locate:**
+
+```kql
+DeviceFileEvents
+| where FolderPath has @"\Microsoft\Windows\Start Menu\Programs\Startup"
+| where ActionType in ("FileCreated", "FileModified")
+| project
+    Timestamp,
+    DeviceName,
+    FileName,
+    FolderPath,
+    InitiatingProcessFileName,
+    InitiatingProcessCommandLine
+```
+
+![image](https://github.com/user-attachments/assets/533e9e64-5f4c-4775-b51f-49d193172f32)
+
+---
+
+## Summary
+
+The employee "John" downloaded an unauthorized PDF viewer application that would make powershell call upon a website to download and run malicous scripts. These scripts performed a ransomware attack, port scanning, and data exfiltration. In addition, the inital process to initiate these scripts was left in the Start up folder allowing each scripts to run each time the user logged on. 
+
+---
+
+## Response Taken
+
+**1. Immediately isolate John's device from the network.**
+
+**2. Remove Script(s) from start up folder.**
+
+**3. Conduct malware analysis abd identiy all affected endpoints.**
+
+**4. Educate users on downloading unauthorized software.**
+
+
 
 
