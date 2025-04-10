@@ -37,7 +37,7 @@ DeviceProcessEvents
 ![image](https://github.com/user-attachments/assets/cd177c9a-85d7-436d-9be6-de0f56d700cc)
 
 ---
-### 2. Searched for scripts ran
+### 2. Searched for Scripts Ran
 
 It was confirmed that scripts with concerning names (portscan.ps1, pwncrypt.ps1, and exfiltrateddata.ps1) were downloaded to the computer. To investigate further, we checked whether these downloads had been executed, and indeed, they had been.
 
@@ -59,8 +59,22 @@ DeviceProcessEvents
 ---
 
 
+### 3. Searched for Effect of Scripts 
+
+After taking a look at the details of the scripts ran (In a controlled enviroment) it was found that a ransomware script was ran, as well as a port scan to discover open vulerable ports, and a script to zip and exfiltrate employee data to spreadsheet files in the `C:\ProgramData` folder.
+
+**Query used to locate:**
+
+```kql
+DeviceFileEvents
+| where DeviceName == "riq-test"
+| where FolderPath startswith @"C:\ProgramData"
+```
+
+![image](https://github.com/user-attachments/assets/d8c97c8a-59b3-47b7-b359-269d36c79a55)
 
 
+---
 
 
 
