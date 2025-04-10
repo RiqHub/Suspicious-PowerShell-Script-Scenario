@@ -13,6 +13,7 @@ John, an employee in the Accounting department, downloads a free PDF viewer from
 ### IoC Discovery Plan
 
 - **Check `DeviceProcessEvents`** for any signs of installation or usage.
+- **Check `DeviceFileEvents`** 
 
 
 ---
