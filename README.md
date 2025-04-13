@@ -45,10 +45,10 @@ It was confirmed that scripts with concerning names (portscan.ps1, pwncrypt.ps1,
 **Query used to locate:**
 
 ```kql
-let TargetHostname = "riq-test"; // Replace with the name of your VM as it shows up in the logs
+let TargetHostname = "riq-test"; 
 let ScriptNames = dynamic(["eicar.ps1", "exfiltratedata.ps1", "portscan.ps1", "pwncrypt.ps1"]); 
 DeviceProcessEvents
-| where DeviceName == TargetHostname // Comment this line out for MORE results
+| where DeviceName == TargetHostname 
 | where FileName == "powershell.exe"
 | where ProcessCommandLine contains "-File" and ProcessCommandLine has_any (ScriptNames)
 | order by TimeGenerated
