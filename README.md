@@ -1,30 +1,58 @@
 ![image](https://github.com/user-attachments/assets/b110dcf5-1506-4f9e-bb3f-4f4f54cdbe5c)
 
-# Suspicious-PowerShell-Script-Scenario
+---
 
-## Platforms and Languages Leveraged
-- Windows 10 Virtual Machines (Microsoft Azure)
-- EDR Platform: Microsoft Defender for Endpoint
-- Kusto Query Language (KQL)
-
-##  Scenario
-John, an employee in the Accounting department, downloads a free PDF viewer from a website that appears to be legitimate but is actually untrusted. The PDF viewer installation includes a hidden malicious payload, which is designed to run a PowerShell script upon execution.
-
-### IoC Discovery Plan
-
-- **Check `DeviceProcessEvents`** for any signs of installation or usage.
-- **Check `DeviceFileEvents`** 
-
+# 🚨 Incident Response: Suspicious PowerShell Script Execution
 
 ---
 
-## Steps Taken
+## 🛠️ Platforms and Tools
+- **Windows 10 Virtual Machines (Microsoft Azure)**
+- **Microsoft Defender for Endpoint**
+- **Kusto Query Language (KQL)**
 
-### 1. Searched the `DeviceProcessEvents' Table 
+---
 
-First we searched the logs that triggered the alert to see if we could get any information. What was found was a request to download multiple suspicous scripts to the hidden Program Data folder. 
+## 📘 Scenario
 
-**Query used to locate:**
+John, an employee in the Accounting department, downloads a seemingly innocent PDF viewer from an untrusted website. The installation includes a hidden malicious payload that executes PowerShell scripts silently in the background.
+
+---
+
+## 🔍 Objective: Investigate Malicious Script Activity Using KQL
+Use Microsoft Defender for Endpoint telemetry and KQL to trace script downloads, execution, persistence methods, and artifacts left behind by the attacker.
+
+---
+
+## 🧠 Incident Response Phases
+
+### 1️⃣ Preparation
+
+1. Policies and Procedures:
+
+- Define clear procedures for handling malware infections and unauthorized script execution.
+
+- Include actions for isolating endpoints, notifying stakeholders, and initiating forensic analysis.
+
+- Establish software installation policies restricting the use of unauthorized applications.
+
+2. Endpoint Security Configuration:
+
+- Enable script block logging and process command-line logging via Group Policy or Microsoft Defender for Endpoint.
+
+- Ensure Microsoft Defender Antivirus is set to detect and block potentially unwanted applications (PUAs).
+
+3. Monitoring and Alerting:
+
+- Set up custom alert rules in Microsoft Defender for Endpoint and Sentinel for PowerShell activity involving suspicious keywords (e.g., Invoke-WebRequest, -File, or known malware filenames).
+
+- Monitor file write events in sensitive directories like C:\ProgramData and Startup.
+
+### 2️⃣ Detection & Analysis
+
+#### 🔸 PowerShell Script Downloads
+
+Malicious scripts were downloaded to the hidden ProgramData folder using PowerShell's `Invoke-WebRequest`.
 
 ```kql
 let TargetHostname = "riq-test"; 
@@ -35,10 +63,12 @@ DeviceProcessEvents
 | order by TimeGenerated
 ```
 
+
 ![image](https://github.com/user-attachments/assets/cd177c9a-85d7-436d-9be6-de0f56d700cc)
 
 ---
-### 2. Searched for Scripts Ran
+
+#### 🔸 Script Execution Analysis
 
 It was confirmed that scripts with concerning names (portscan.ps1, pwncrypt.ps1, and exfiltrateddata.ps1) were downloaded to the computer. To investigate further, we checked whether these downloads had been executed, and indeed, they had been.
 
@@ -60,7 +90,7 @@ DeviceProcessEvents
 ---
 
 
-### 3. Searched for Effect of Scripts 
+#### 🔸 Script Impact & Artifact Discovery
 
 After taking a look at the details of the scripts ran (In a controlled enviroment) it was found that a ransomware script was ran, as well as a port scan to discover open vulerable ports, and a script to zip and exfiltrate employee data to spreadsheet files in the `C:\ProgramData` folder.
 
@@ -77,7 +107,7 @@ DeviceFileEvents
 
 ---
 
-### 4. Searched for Persistence
+#### 🔸 Persistence Check
 
 After checking for any new Registry Keys or Scheduled Tasks, we searched the start up folder to see if their were any signs of persistence and we indeed found the `eicar.ps1` file that initially released the other scripts to run. 
 
@@ -99,24 +129,34 @@ DeviceFileEvents
 
 ![image](https://github.com/user-attachments/assets/533e9e64-5f4c-4775-b51f-49d193172f32)
 
----
+### 2️⃣ Containment
 
-## Summary
+- 🛑 Isolated John’s device from the network immediately.
 
-The employee "John" downloaded an unauthorized PDF viewer application that would make powershell call upon a website to download and run malicous scripts. These scripts performed a ransomware attack, port scanning, and data exfiltration. In addition, the inital process to initiate these scripts was left in the Start up folder allowing each scripts to run each time the user logged on. 
+- 🗑️ Removed all malicious scripts from the startup folder.
 
----
+- 🔍 Conducted malware scans and reviewed lateral movement.
 
-## Response Taken
+- 📢 Notified team about the presence of unauthorized software.
 
-**1. Immediately isolate John's device from the network.**
+### 3️⃣ Eradication & Recovery
 
-**2. Remove Script(s) from start up folder.**
+- 🔄 Performed full system wipe and rebuild of affected machine.
 
-**3. Conduct malware analysis abd identiy all affected endpoints.**
+- 🔒 Strengthened endpoint protection settings.
 
-**4. Educate users on downloading unauthorized software.**
+- ⛔ Blocked untrusted software downloads via firewall policies.
 
+### 4️⃣ Lessons Learned & Next Steps
+
+- 📚 Security Awareness Training to avoid downloading unknown applications.
+
+- 🔁 Review of allowed domains and whitelisted processes.
+
+- 📈 Improvements to detection rules related to PowerShell behavior.
+
+### 🧾 Summary
+A suspicious PowerShell-based attack was discovered on an endpoint via an unauthorized software download. Malicious scripts executed ransomware, performed port scans, and exfiltrated data. Persistence was achieved via the startup folder, allowing repeated execution. IR actions were swiftly taken to contain, eradicate, and improve defenses.
 
 
 
